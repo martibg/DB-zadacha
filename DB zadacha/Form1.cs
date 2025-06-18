@@ -15,6 +15,7 @@ namespace DB_zadacha
     {
         string connStr = "server=localhost;user=root;database=StudentsDB;port=3306;password= Qwe1209poi!;";
         MySqlConnection conn;
+        int selectedID = -1;
         public Form1()
         {
             InitializeComponent();
@@ -92,20 +93,21 @@ namespace DB_zadacha
             if (e.RowIndex >= 0)
             {
                 DataGridViewRow row = dataGridView1.Rows[e.RowIndex];
-                txtID.Text = row.Cells["ID"].Value.ToString();
+                selectedID = Convert.ToInt32(row.Cells["ID"].Value);
                 txtName.Text = row.Cells["Name"].Value.ToString();
                 txtAge.Text = row.Cells["Age"].Value.ToString();
                 txtClass.Text = row.Cells["Class"].Value.ToString();
                 txtGrade.Text = row.Cells["AverageGrade"].Value.ToString();
             }
-        }   
+        }
+        
         
 
         private void btnUpdate_Click(object sender, EventArgs e)
         {
-            if (!int.TryParse(txtID.Text, out int id))
+            if (selectedID == -1)
             {
-                MessageBox.Show("Невалидно ID.");
+                MessageBox.Show("Моля, изберете ученик от таблицата.");
                 return;
             }
 
@@ -118,7 +120,7 @@ namespace DB_zadacha
                     conn.Open();
                     string query = "UPDATE Students SET Name=@name, Age=@age, Class=@class, AverageGrade=@grade WHERE ID=@id";
                     MySqlCommand cmd = new MySqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@id", id);
+                    cmd.Parameters.AddWithValue("@id", selectedID);
                     cmd.Parameters.AddWithValue("@name", txtName.Text);
                     cmd.Parameters.AddWithValue("@age", age);
                     cmd.Parameters.AddWithValue("@class", txtClass.Text);
@@ -133,13 +135,14 @@ namespace DB_zadacha
                 MessageBox.Show("Грешка при редактиране: " + ex.Message);
             }
         }
-        
+
+
 
         private void btnDelete_Click(object sender, EventArgs e)
         {
-            if (!int.TryParse(txtID.Text, out int id))
+            if (selectedID == -1)
             {
-                MessageBox.Show("Невалидно ID.");
+                MessageBox.Show("Моля, изберете ученик от таблицата.");
                 return;
             }
 
@@ -150,7 +153,7 @@ namespace DB_zadacha
                     conn.Open();
                     string query = "DELETE FROM Students WHERE ID=@id";
                     MySqlCommand cmd = new MySqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@id", id);
+                    cmd.Parameters.AddWithValue("@id", selectedID);
                     cmd.ExecuteNonQuery();
                 }
                 LoadData();
@@ -161,7 +164,6 @@ namespace DB_zadacha
                 MessageBox.Show("Грешка при изтриване: " + ex.Message);
             }
         }
-
         private void ClearFields()
         {
             txtID.Clear();
